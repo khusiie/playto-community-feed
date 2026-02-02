@@ -1,0 +1,23 @@
+.app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.app-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.main-layout {
+    display: flex;
+    gap: 30px;
+}
+
+.feed-section {
+    flex: 2;
+}
+
+.sidebar-section {
+    flex: 1;
+}

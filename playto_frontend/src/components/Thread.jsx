@@ -4,8 +4,9 @@ import { formatDistanceToNow } from 'date-fns';
 import CommentTree from './CommentTree';
 
 const Thread = ({ thread }) => {
-    const [likes, setLikes] = useState(thread.likes_count);
+    const [likes, setLikes] = useState(thread.likes_count || 0);
     const [comments, setComments] = useState(thread.comments || []);
+    const [commentsCount, setCommentsCount] = useState(thread.comments_count || 0);
     const [showComments, setShowComments] = useState(false);
     const [replyContent, setReplyContent] = useState('');
 
@@ -31,6 +32,7 @@ const Thread = ({ thread }) => {
                 parent: null
             });
             setComments([response.data, ...comments]);
+            setCommentsCount(commentsCount + 1);
             setReplyContent('');
             setShowComments(true);
         } catch (error) {
@@ -45,7 +47,7 @@ const Thread = ({ thread }) => {
             <div className="meta">
                 <span>Posted by {thread.author.username} {formatDistanceToNow(new Date(thread.created_at))} ago</span>
                 <button onClick={handleLike}>❤️ {likes}</button>
-                <button onClick={() => setShowComments(!showComments)}>💬 {thread.comments_count || comments.length} Comments</button>
+                <button onClick={() => setShowComments(!showComments)}>💬 {commentsCount} Comments</button>
             </div>
 
             {showComments && (

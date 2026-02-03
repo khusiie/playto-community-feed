@@ -32,8 +32,8 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class ThreadSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
-    comments_count = serializers.IntegerField(read_only=True)
-    likes_count = serializers.IntegerField(read_only=True)
+    comments_count = serializers.SerializerMethodField()
+    likes_count = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
 
@@ -42,10 +42,17 @@ class ThreadSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'content', 'author', 'created_at', 'comments_count', 'likes_count', 'is_liked', 'comments']
 
     def get_is_liked(self, obj):
-        user = self.context['request'].user
-        if user.is_authenticated:
-            return obj.likes.filter(user=user).exists()
-        return False
+        request = self.context.get('request')
+        user = request.user if request else None
+        if not user or user.is_anonymous:
+            return False
+        return obj.likes.filter(user=user).exists()
+
+    def get_likes_count(self, obj):
+        return getattr(obj, 'likes_count', 0) or 0
+
+    def get_comments_count(self, obj):
+        return getattr(obj, 'comments_count', 0) or 0
 
     def get_comments(self, obj):
         # Return empty list if thread hasn't been saved yet (no ID)
@@ -65,7 +72,7 @@ class ThreadSerializer(serializers.ModelSerializer):
         for comment in root_comments:
             comment.prefetched_replies = []
         
-        return CommentSerializer(root_comments, many=True, context=self.context).data 
+        return CommentSerializer(root_comments, many=True, context=self.context).data
 
 class CreateCommentSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)

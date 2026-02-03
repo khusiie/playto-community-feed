@@ -18,6 +18,7 @@ class ThreadViewSet(viewsets.ModelViewSet):
     queryset = Thread.objects.all()
     serializer_class = ThreadSerializer
     permission_classes = [AllowAny]
+    authentication_classes = []
 
     def get_queryset(self):
         user = self.request.user
@@ -80,6 +81,7 @@ class CommentViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = Comment.objects.all()
     serializer_class = CreateCommentSerializer
     permission_classes = [AllowAny]
+    authentication_classes = []
 
     def perform_create(self, serializer):
         user = self.request.user
@@ -90,6 +92,7 @@ class CommentViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 @method_decorator(csrf_exempt, name='dispatch')
 class LikeViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
+    authentication_classes = []
 
     def create(self, request):
         user = request.user

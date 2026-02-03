@@ -1,7 +1,10 @@
 from rest_framework import viewsets, mixins, status
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
+from django.contrib.auth.models import User
 from django.db.models import Count, Q, Sum
 from django.utils import timezone
 from datetime import timedelta
@@ -10,10 +13,11 @@ from .models import Thread, Comment, Like, KarmaActivity
 from .serializers import ThreadSerializer, CommentSerializer, CreateCommentSerializer, KarmaActivitySerializer
 from django.db import transaction
 
+@method_decorator(csrf_exempt, name='dispatch')
 class ThreadViewSet(viewsets.ModelViewSet):
     queryset = Thread.objects.all()
     serializer_class = ThreadSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         user = self.request.user
@@ -31,7 +35,11 @@ class ThreadViewSet(viewsets.ModelViewSet):
         return qs
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        user = self.request.user
+        if user.is_anonymous:
+            # Get or create a default 'Guest' user
+            user, _ = User.objects.get_or_create(username='Guest')
+        serializer.save(author=user)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -67,19 +75,26 @@ class ThreadViewSet(viewsets.ModelViewSet):
         data['comments'] = CommentSerializer(root_comments, many=True, context={'request': request}).data
         return Response(data)
 
+@method_decorator(csrf_exempt, name='dispatch')
 class CommentViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = Comment.objects.all()
     serializer_class = CreateCommentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        user = self.request.user
+        if user.is_anonymous:
+            user, _ = User.objects.get_or_create(username='Guest')
+        serializer.save(author=user)
 
+@method_decorator(csrf_exempt, name='dispatch')
 class LikeViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def create(self, request):
         user = request.user
+        if user.is_anonymous:
+            user, _ = User.objects.get_or_create(username='Guest')
         content_type_str = request.data.get('content_type')
         object_id = request.data.get('object_id')
 

@@ -1,69 +1,56 @@
 # Playto Community Feed
 
-A high-performance Community Feed prototype built with Django and React for the Playto Engineering Challenge.
+A high-performance Community Feed prototype built with Django and React for the Playto Engineering Challenge. Optimized for high concurrency, N+1 problem resolution, and seamless user experience.
 
-## Features
+## 🚀 Live Demo
 
-- **Discussion Feed**: Create threads and view posts.
+- **Frontend**: [https://playto-community-feed-frontend.onrender.com](https://playto-community-feed-frontend.onrender.com)
+- **Backend API**: [https://playto-community-feed-trxe.onrender.com/api/](https://playto-community-feed-trxe.onrender.com/api/)
+
+> [!NOTE]
+> **Convenience Mode:** For this prototype, I have enabled **Guest Posting**. You can create threads, comments, and like posts immediately without logging in. All anonymous actions are automatically attributed to a "Guest" user.
+
+## ✨ Key Features
+
+- **Discussion Feed**: Create threads and view posts in real-time.
 - **Threaded Comments**: Arbitrarily deep nested comments system.
-- **Dynamic Leaderboard**: Real-time ranking based on Karma earned in the last 24 hours.
+- **Dynamic Leaderboard**: Real-time ranking based on Karma earned in the last 24 hours (updates every 2 seconds).
 - **Gamification**:
   - +5 Karma for thread likes
   - +1 Karma for comment likes
-- **Optimized Performance**: Solves the N+1 problem by fetching entire comment trees in a single O(1) query.
+- **Performance Optimized**: Uses a custom "adjacency list" deserialization strategy to solve the N+1 problem, fetching entire complex comment trees in a single O(1) database query.
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 - **Backend**: Django 6.x, Django REST Framework
-- **Frontend**: React, Vite
-- **Database**: SQLite (Configured for easy local run, swappable for PostgreSQL)
+- **Frontend**: React, Vite, Vanilla CSS (Custom Design)
+- **Database**: PostgreSQL (Production), SQLite (Local)
+- **Hosting**: Render (Automated CI/CD via GitHub)
 
-## Setup Instructions
+## 📖 Technical Documentation
 
-### Prerequisites
-- Python 3.8+
-- Node.js 16+
+- **[EXPLAINER.md](EXPLAINER.md)**: Deep dive into the N+1 solution, Leaderboard logic, and AI bug fixes.
+- **[walkthrough.md](file:///C:/Users/khush/.gemini/antigravity/brain/5f6b6975-5a25-4de8-9bd5-41269ed49fcd/walkthrough.md)**: Deployment logs and verification steps.
+
+---
+
+## 💻 Local Setup
+
+If you wish to run the project locally:
 
 ### 1. Backend Setup
-
 ```bash
-cd community_feed
-# Create virtual environment
-python -m venv venv
-
-# Activate (Windows)
-.\venv\Scripts\activate
-# Activate (Mac/Linux)
-# source venv/bin/activate
-
 # Install dependencies
 pip install -r requirements.txt
 
-# Run migrations
+# Run migrations & server
 python manage.py migrate
-
-# Create Superuser (for login)
-python manage.py createsuperuser
-
-# Run Server
 python manage.py runserver
 ```
 
-Backend will be running at `http://localhost:8000/api/`.
-
 ### 2. Frontend Setup
-
 ```bash
 cd playto_frontend
-# Install dependencies
 npm install
-
-# Run Dev Server
 npm run dev
 ```
-
-Frontend will be running at `http://localhost:5173`.
-
-## Usage Note
-
-- **Login**: Since this prototype uses Session Authentication, please log in to the Django Admin panel at **[http://localhost:8000/admin/](http://localhost:8000/admin/)** before using the frontend. This ensures your browser has the necessary session cookies.
